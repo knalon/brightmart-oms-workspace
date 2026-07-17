@@ -20,7 +20,7 @@ class UserRegistrationSerializer(serializers.ModelSerializer):
         # Clean, non-repetitive payload fields for the frontend
         fields = ['email', 'password', 'name', 'phone']
 
-def create(self, validated_data):
+    def create(self, validated_data):
         email = validated_data['email']
         
         with transaction.atomic():
