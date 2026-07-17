@@ -1,0 +1,5 @@
+venv/
+bright_mart_system/db.sqlite3
+bright_mart_system/.env
+bright_mart_system/__pycache__/
+*.pyc

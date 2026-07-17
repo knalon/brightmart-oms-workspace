@@ -1,0 +1,906 @@
+openapi: 3.0.3
+info:
+  title: BrightMart System API Matrix
+  version: 1.0.0
+  description: Enterprise tracking framework and transaction ledger documentation.
+paths:
+  /api/auth/register/:
+    post:
+      operationId: auth_register
+      tags:
+      - auth
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/UserRegistrationRequest'
+          application/x-www-form-urlencoded:
+            schema:
+              $ref: '#/components/schemas/UserRegistrationRequest'
+          multipart/form-data:
+            schema:
+              $ref: '#/components/schemas/UserRegistrationRequest'
+        required: true
+      security:
+      - tokenAuth: []
+      - TokenAuth: []
+      responses:
+        '201':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/UserRegistration'
+          description: ''
+  /api/auth/register-staff/:
+    post:
+      operationId: auth_register_staff
+      tags:
+      - auth
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/StaffRegistrationRequest'
+          application/x-www-form-urlencoded:
+            schema:
+              $ref: '#/components/schemas/StaffRegistrationRequest'
+          multipart/form-data:
+            schema:
+              $ref: '#/components/schemas/StaffRegistrationRequest'
+        required: true
+      security:
+      - tokenAuth: []
+      - TokenAuth: []
+      responses:
+        '201':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/StaffRegistration'
+          description: ''
+  /api/auth/token/:
+    post:
+      operationId: auth_token_create
+      description: |-
+        POST /api/auth/token/ - Handshakes user credentials.
+        Returns a secure persistent API Token required for header authorization.
+      tags:
+      - auth
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/AuthTokenRequest'
+          application/x-www-form-urlencoded:
+            schema:
+              $ref: '#/components/schemas/AuthTokenRequest'
+          multipart/form-data:
+            schema:
+              $ref: '#/components/schemas/AuthTokenRequest'
+        required: true
+      security:
+      - tokenAuth: []
+      - TokenAuth: []
+      - {}
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/AuthToken'
+          description: ''
+  /api/customers/:
+    get:
+      operationId: customers_list
+      description: |-
+        GET  /api/customers/ - Query complete customer master listing.
+        POST /api/customers/ - Instantiate new customer profile.
+      tags:
+      - customers
+      security:
+      - tokenAuth: []
+      - TokenAuth: []
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/CustomerDetail'
+          description: ''
+  /api/customers/{customer_id}/:
+    get:
+      operationId: customers_retrieve
+      description: GET /api/customers/<customer_id>/ - Fetch details for a specific
+        customer.
+      parameters:
+      - in: path
+        name: customer_id
+        schema:
+          type: string
+        required: true
+      tags:
+      - customers
+      security:
+      - tokenAuth: []
+      - TokenAuth: []
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/CustomerDetail'
+          description: ''
+  /api/health:
+    get:
+      operationId: health_retrieve
+      tags:
+      - health
+      security:
+      - tokenAuth: []
+      - TokenAuth: []
+      - {}
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HealthCheckResponse'
+          description: ''
+  /api/orders/:
+    get:
+      operationId: orders_list
+      tags:
+      - orders
+      security:
+      - tokenAuth: []
+      - TokenAuth: []
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/OrderCreate'
+          description: ''
+    post:
+      operationId: orders_create
+      tags:
+      - orders
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/OrderCreateRequest'
+          application/x-www-form-urlencoded:
+            schema:
+              $ref: '#/components/schemas/OrderCreateRequest'
+          multipart/form-data:
+            schema:
+              $ref: '#/components/schemas/OrderCreateRequest'
+        required: true
+      security:
+      - tokenAuth: []
+      - TokenAuth: []
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/OrderCreate'
+          description: ''
+  /api/orders/{order_id}/:
+    get:
+      operationId: orders_retrieve
+      description: Handles GET /api/orders/{orderId}/ to fetch full composite data
+        logs.
+      parameters:
+      - in: path
+        name: order_id
+        schema:
+          type: string
+        required: true
+      tags:
+      - orders
+      security:
+      - tokenAuth: []
+      - TokenAuth: []
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/OrderDetail'
+          description: ''
+  /api/orders/{order_id}/cancel/:
+    post:
+      operationId: orders_cancel_create
+      description: Handles POST /api/orders/{orderId}/cancel/ cleanly using idempotent
+        services.
+      parameters:
+      - in: path
+        name: order_id
+        schema:
+          type: string
+        required: true
+      tags:
+      - orders
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/OrderDetailRequest'
+          application/x-www-form-urlencoded:
+            schema:
+              $ref: '#/components/schemas/OrderDetailRequest'
+          multipart/form-data:
+            schema:
+              $ref: '#/components/schemas/OrderDetailRequest'
+        required: true
+      security:
+      - tokenAuth: []
+      - TokenAuth: []
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/OrderDetail'
+          description: ''
+  /api/orders/{order_id}/status/:
+    patch:
+      operationId: orders_status_partial_update
+      description: PATCH /api/orders/{orderId}/status - Fulfilment state transition
+        gate (Mandatory)
+      parameters:
+      - in: path
+        name: order_id
+        schema:
+          type: string
+        required: true
+      tags:
+      - orders
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/PatchedStatusUpdateRequest'
+          application/x-www-form-urlencoded:
+            schema:
+              $ref: '#/components/schemas/PatchedStatusUpdateRequest'
+          multipart/form-data:
+            schema:
+              $ref: '#/components/schemas/PatchedStatusUpdateRequest'
+      security:
+      - tokenAuth: []
+      - TokenAuth: []
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/StatusUpdate'
+          description: ''
+  /api/products/:
+    get:
+      operationId: inventory_products_list
+      description: |-
+        GET  /api/products/ - Fetch full product catalog.
+        POST /api/products/ - Provision new product entry into inventory matrix.
+      tags:
+      - products
+      security:
+      - tokenAuth: []
+      - TokenAuth: []
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ProductDetail'
+          description: ''
+    post:
+      operationId: inventory_products_create
+      description: |-
+        GET  /api/products/ - Fetch full product catalog.
+        POST /api/products/ - Provision new product entry into inventory matrix.
+      tags:
+      - products
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/ProductDetailRequest'
+          application/x-www-form-urlencoded:
+            schema:
+              $ref: '#/components/schemas/ProductDetailRequest'
+          multipart/form-data:
+            schema:
+              $ref: '#/components/schemas/ProductDetailRequest'
+        required: true
+      security:
+      - tokenAuth: []
+      - TokenAuth: []
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ProductDetail'
+          description: ''
+  /api/products/{product_id}/:
+    get:
+      operationId: inventory_products_retrieve
+      description: GET /api/products/<product_id>/ - Fetch details for a specific
+        item.
+      parameters:
+      - in: path
+        name: product_id
+        schema:
+          type: string
+        required: true
+      tags:
+      - products
+      security:
+      - tokenAuth: []
+      - TokenAuth: []
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ProductDetail'
+          description: ''
+    patch:
+      operationId: products_partial_update
+      description: Partially updates product specs or updates inventory stock metrics.
+      parameters:
+      - in: path
+        name: product_id
+        schema:
+          type: string
+        required: true
+      tags:
+      - products
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/PatchedProductDetailRequest'
+          application/x-www-form-urlencoded:
+            schema:
+              $ref: '#/components/schemas/PatchedProductDetailRequest'
+          multipart/form-data:
+            schema:
+              $ref: '#/components/schemas/PatchedProductDetailRequest'
+      security:
+      - tokenAuth: []
+      - TokenAuth: []
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ProductDetail'
+          description: ''
+  /api/products/low-stock/:
+    get:
+      operationId: products_low_stock_retrieve
+      description: |-
+        GET /api/products/low-stock/ - Operational telemetry endpoint.
+        Flags items dropping below critical enterprise margins (e.g., threshold = 2).
+      tags:
+      - products
+      security:
+      - tokenAuth: []
+      - TokenAuth: []
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ProductDetail'
+          description: ''
+  /api/webhooks/shipping/:
+    post:
+      operationId: webhooks_shipping_create
+      description: |-
+        POST /api/webhooks/shipping/ - Integrates with external 3PL carrier APIs.
+        Updates internal core Shipment tracking logs and updates order fulfillment states.
+      tags:
+      - webhooks
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/ShippingWebhookInputRequest'
+          application/x-www-form-urlencoded:
+            schema:
+              $ref: '#/components/schemas/ShippingWebhookInputRequest'
+          multipart/form-data:
+            schema:
+              $ref: '#/components/schemas/ShippingWebhookInputRequest'
+        required: true
+      security:
+      - tokenAuth: []
+      - TokenAuth: []
+      - {}
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ShippingWebhookInput'
+          description: ''
+components:
+  schemas:
+    AuthToken:
+      type: object
+      properties:
+        token:
+          type: string
+          readOnly: true
+      required:
+      - token
+    AuthTokenRequest:
+      type: object
+      properties:
+        username:
+          type: string
+          writeOnly: true
+          minLength: 1
+        password:
+          type: string
+          writeOnly: true
+          minLength: 1
+      required:
+      - password
+      - username
+    CustomerDetail:
+      type: object
+      properties:
+        customer_id:
+          type: string
+          readOnly: true
+        name:
+          type: string
+          maxLength: 100
+        email:
+          type: string
+          format: email
+          maxLength: 254
+        phone:
+          type: string
+          maxLength: 20
+        user:
+          type: integer
+          readOnly: true
+      required:
+      - customer_id
+      - email
+      - name
+      - phone
+      - user
+    EventEnum:
+      enum:
+      - parcel.shipped
+      - parcel.delivered
+      type: string
+      description: |-
+        * `parcel.shipped` - parcel.shipped
+        * `parcel.delivered` - parcel.delivered
+    HealthCheckResponse:
+      type: object
+      properties:
+        status:
+          type: string
+        database:
+          type: string
+      required:
+      - database
+      - status
+    OrderCreate:
+      type: object
+      properties:
+        customerId:
+          type: string
+        items:
+          type: array
+          items:
+            $ref: '#/components/schemas/OrderItemInput'
+        deliveryAddress:
+          type: string
+      required:
+      - customerId
+      - deliveryAddress
+      - items
+    OrderCreateRequest:
+      type: object
+      properties:
+        customerId:
+          type: string
+          minLength: 1
+        items:
+          type: array
+          items:
+            $ref: '#/components/schemas/OrderItemInputRequest'
+        deliveryAddress:
+          type: string
+          minLength: 1
+      required:
+      - customerId
+      - deliveryAddress
+      - items
+    OrderDetail:
+      type: object
+      properties:
+        order_id:
+          type: string
+          maxLength: 50
+        customerId:
+          type: string
+        status:
+          $ref: '#/components/schemas/StatusEnum'
+        paymentStatus:
+          type: string
+          readOnly: true
+        stockReserved:
+          type: boolean
+          readOnly: true
+        total_amount:
+          type: string
+          format: decimal
+          pattern: ^-?\d{0,8}(?:\.\d{0,2})?$
+        delivery_address:
+          type: string
+        order_date:
+          type: string
+          format: date-time
+          readOnly: true
+        items:
+          type: array
+          items:
+            $ref: '#/components/schemas/OrderItemDetail'
+          readOnly: true
+      required:
+      - customerId
+      - delivery_address
+      - items
+      - order_date
+      - order_id
+      - paymentStatus
+      - stockReserved
+      - total_amount
+    OrderDetailRequest:
+      type: object
+      properties:
+        order_id:
+          type: string
+          minLength: 1
+          maxLength: 50
+        customerId:
+          type: string
+          minLength: 1
+        status:
+          $ref: '#/components/schemas/StatusEnum'
+        total_amount:
+          type: string
+          format: decimal
+          pattern: ^-?\d{0,8}(?:\.\d{0,2})?$
+        delivery_address:
+          type: string
+          minLength: 1
+      required:
+      - customerId
+      - delivery_address
+      - order_id
+      - total_amount
+    OrderItemDetail:
+      type: object
+      properties:
+        product_id:
+          type: string
+        product_name:
+          type: string
+        quantity:
+          type: integer
+          maximum: 4294967295
+          minimum: 0
+          format: int64
+        unit_price:
+          type: string
+          format: decimal
+          pattern: ^-?\d{0,8}(?:\.\d{0,2})?$
+      required:
+      - product_id
+      - product_name
+      - quantity
+      - unit_price
+    OrderItemDetailRequest:
+      type: object
+      properties:
+        product_id:
+          type: string
+          minLength: 1
+        product_name:
+          type: string
+          minLength: 1
+        quantity:
+          type: integer
+          maximum: 4294967295
+          minimum: 0
+          format: int64
+        unit_price:
+          type: string
+          format: decimal
+          pattern: ^-?\d{0,8}(?:\.\d{0,2})?$
+      required:
+      - product_id
+      - product_name
+      - quantity
+      - unit_price
+    OrderItemInput:
+      type: object
+      properties:
+        product_id:
+          type: string
+          maxLength: 50
+        quantity:
+          type: integer
+      required:
+      - product_id
+      - quantity
+    OrderItemInputRequest:
+      type: object
+      properties:
+        product_id:
+          type: string
+          minLength: 1
+          maxLength: 50
+        quantity:
+          type: integer
+      required:
+      - product_id
+      - quantity
+    PatchedProductDetailRequest:
+      type: object
+      properties:
+        product_id:
+          type: string
+          minLength: 1
+          maxLength: 50
+        sku:
+          type: string
+          minLength: 1
+          maxLength: 50
+        name:
+          type: string
+          minLength: 1
+          maxLength: 150
+        price:
+          type: string
+          format: decimal
+          pattern: ^-?\d{0,8}(?:\.\d{0,2})?$
+        available_stock:
+          type: integer
+          maximum: 2147483647
+          minimum: -2147483648
+    PatchedStatusUpdateRequest:
+      type: object
+      properties:
+        status:
+          type: string
+          minLength: 1
+          maxLength: 20
+    ProductDetail:
+      type: object
+      properties:
+        product_id:
+          type: string
+          maxLength: 50
+        sku:
+          type: string
+          maxLength: 50
+        name:
+          type: string
+          maxLength: 150
+        price:
+          type: string
+          format: decimal
+          pattern: ^-?\d{0,8}(?:\.\d{0,2})?$
+        available_stock:
+          type: integer
+          maximum: 2147483647
+          minimum: -2147483648
+      required:
+      - name
+      - price
+      - product_id
+      - sku
+    ProductDetailRequest:
+      type: object
+      properties:
+        product_id:
+          type: string
+          minLength: 1
+          maxLength: 50
+        sku:
+          type: string
+          minLength: 1
+          maxLength: 50
+        name:
+          type: string
+          minLength: 1
+          maxLength: 150
+        price:
+          type: string
+          format: decimal
+          pattern: ^-?\d{0,8}(?:\.\d{0,2})?$
+        available_stock:
+          type: integer
+          maximum: 2147483647
+          minimum: -2147483648
+      required:
+      - name
+      - price
+      - product_id
+      - sku
+    ShippingWebhookInput:
+      type: object
+      properties:
+        event:
+          $ref: '#/components/schemas/EventEnum'
+        tracking_number:
+          type: string
+          maxLength: 100
+        order_id:
+          type: string
+          maxLength: 50
+        carrier:
+          type: string
+          maxLength: 50
+      required:
+      - event
+      - order_id
+      - tracking_number
+    ShippingWebhookInputRequest:
+      type: object
+      properties:
+        event:
+          $ref: '#/components/schemas/EventEnum'
+        tracking_number:
+          type: string
+          minLength: 1
+          maxLength: 100
+        order_id:
+          type: string
+          minLength: 1
+          maxLength: 50
+        carrier:
+          type: string
+          minLength: 1
+          maxLength: 50
+      required:
+      - event
+      - order_id
+      - tracking_number
+    StaffRegistration:
+      type: object
+      properties:
+        username:
+          type: string
+          description: Required. 150 characters or fewer. Letters, digits and @/./+/-/_
+            only.
+          pattern: ^[\w.@+-]+$
+          maxLength: 150
+        email:
+          title: Email address
+          oneOf:
+          - type: string
+            format: email
+            maxLength: 254
+          - type: string
+            maxLength: 0
+        first_name:
+          type: string
+          maxLength: 150
+        last_name:
+          type: string
+          maxLength: 150
+      required:
+      - username
+    StaffRegistrationRequest:
+      type: object
+      properties:
+        username:
+          type: string
+          minLength: 1
+          description: Required. 150 characters or fewer. Letters, digits and @/./+/-/_
+            only.
+          pattern: ^[\w.@+-]+$
+          maxLength: 150
+        email:
+          title: Email address
+          oneOf:
+          - type: string
+            format: email
+            maxLength: 254
+          - type: string
+            maxLength: 0
+        password:
+          type: string
+          writeOnly: true
+          minLength: 1
+        first_name:
+          type: string
+          maxLength: 150
+        last_name:
+          type: string
+          maxLength: 150
+      required:
+      - password
+      - username
+    StatusEnum:
+      enum:
+      - PENDING
+      - CONFIRMED
+      - PROCESSING
+      - SHIPPED
+      - DELIVERED
+      - CANCELLED
+      type: string
+      description: |-
+        * `PENDING` - Pending
+        * `CONFIRMED` - Confirmed
+        * `PROCESSING` - Processing
+        * `SHIPPED` - Shipped
+        * `DELIVERED` - Delivered
+        * `CANCELLED` - Cancelled
+    StatusUpdate:
+      type: object
+      properties:
+        status:
+          type: string
+          maxLength: 20
+      required:
+      - status
+    UserRegistration:
+      type: object
+      properties:
+        email:
+          type: string
+          format: email
+        name:
+          type: string
+        phone:
+          type: string
+      required:
+      - email
+      - name
+      - phone
+    UserRegistrationRequest:
+      type: object
+      properties:
+        email:
+          type: string
+          format: email
+          minLength: 1
+        password:
+          type: string
+          writeOnly: true
+          minLength: 1
+        name:
+          type: string
+          minLength: 1
+        phone:
+          type: string
+          minLength: 1
+      required:
+      - email
+      - name
+      - password
+      - phone
+  securitySchemes:
+    tokenAuth:
+      type: apiKey
+      in: header
+      name: Authorization
+      description: Token-based authentication with required prefix "Token"
